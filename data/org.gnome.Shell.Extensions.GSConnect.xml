@@ -14,6 +14,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <property type="b" name="Paired" access="read"/>
     <property type="s" name="IconName" access="read"/>
     <property type="s" name="Type" access="read"/>
+    <method name="GetSFTPCredentials">
+      <arg direction="out" type="s"/>
+    </method>
   </interface>
 
   <!-- MPRIS -->
