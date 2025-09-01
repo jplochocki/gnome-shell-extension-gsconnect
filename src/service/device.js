@@ -82,32 +82,44 @@ const Device = GObject.registerClass({
     },
 }, class Device extends Gio.SimpleActionGroup {
     async GetSFTPCredentials() {
-        console.error('----------------------- jest --------------------');
+        console.error('GetSFTPCredentials');
 
         this.GetSFTPCredentials_expectResponse = true;
         this.GetSFTPCredentials_response = null;
-        
+
         await this.sendPacket({
             type: 'kdeconnect.sftp.request',
             body: {
                 startBrowsing: true,
             },
         });
-        
+
         var waitTime = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         for(let i=0; i<=8; i++) {
             if(this.GetSFTPCredentials_response) {
                 this.GetSFTPCredentials_expectResponse = false;
-                //this.GetSFTPCredentials_response = null;
-                console.error(this.GetSFTPCredentials_response);
-                return this.GetSFTPCredentials_response;
+                console.error(this.GetSFTPCredentials_response.body);
+
+                let a = Object.fromEntries(
+                    [
+                        ['ip', 's'],
+                        ['port', 'u'],
+                        ['user', 's'],
+                        ['password', 's'],
+                        ['path', 's'],
+                        ['multiPaths', 'as'],
+                        ['pathNames', 'as'],
+                    ].map(([key, DBUS_type]) => [key, new GLib.Variant(DBUS_type, this.GetSFTPCredentials_response.body[key])])
+                );
+                return a;
             }
             await waitTime(1000);
         }
 
         this.GetSFTPCredentials_expectResponse = false;
-        
-        return 'wynik';
+        this.GetSFTPCredentials_response = null;
+
+        return {'error': new GLib.Variant('s', 'timeout')};
     }
 
     _init(identity) {
@@ -115,7 +127,7 @@ const Device = GObject.registerClass({
         this.GetSFTPCredentials_expectResponse = false;
         this.GetSFTPCredentials_response = null;
 
-        
+
         this._id = identity.body.deviceId;
 
         // GLib.Source timeout id's for pairing requests
@@ -470,13 +482,12 @@ const Device = GObject.registerClass({
             // The device must think we're paired; inform it we are not
             if (!this.paired)
                 return this.unpair();
-                
+
             if(packet.type === 'kdeconnect.sftp' && this.GetSFTPCredentials_expectResponse) {
-                console.error('1', packet)
-                this.GetSFTPCredentials_response = packet.serialize();
+                this.GetSFTPCredentials_response = packet;
                 return;
             }
-            
+
             const handler = this._handlers.get(packet.type);
 
             if (handler !== undefined)

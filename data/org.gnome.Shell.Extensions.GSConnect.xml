@@ -15,7 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <property type="s" name="IconName" access="read"/>
     <property type="s" name="Type" access="read"/>
     <method name="GetSFTPCredentials">
-      <arg direction="out" type="s"/>
+      <arg direction="out" type="a{sv}"/>
     </method>
   </interface>
 
