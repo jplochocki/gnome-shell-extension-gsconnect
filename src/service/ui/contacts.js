@@ -14,7 +14,8 @@ import system from 'system';
 /**
  * Return a random color
  *
- * @param {string} [salt] - If not %null, will be used as salt for generating a color
+ * @param {string} [salt]
+ *        - If not %null, will be used as salt for generating a color
  * @param {number} alpha - A value in the [0...1] range for the alpha channel
  * @returns {Gdk.RGBA} A new Gdk.RGBA object generated from the input
  */
@@ -166,15 +167,10 @@ function getNumberTypeLabel(type) {
  * @returns {string} A (possibly) better display number for the address
  */
 export function getDisplayNumber(contact, address) {
-    const number = address.toPhoneNumber();
-
     for (const contactNumber of contact.numbers) {
-        const cnumber = contactNumber.value.toPhoneNumber();
-
-        if (number.endsWith(cnumber) || cnumber.endsWith(number))
+        if (address?.equalsPhoneNumber(contactNumber.value))
             return GLib.markup_escape_text(contactNumber.value, -1);
     }
-
     return GLib.markup_escape_text(address, -1);
 }
 
